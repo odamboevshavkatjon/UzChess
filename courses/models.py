@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from helpers.models import BaseModel
 
 
 User = get_user_model()
 
 
-class Category(models.Model):
+class Category(BaseModel):
     title = models.CharField(max_length=255)
     course_count = models.PositiveIntegerField(default=0)
 
@@ -17,7 +18,7 @@ class Category(models.Model):
         return self.title
 
 
-class Course(models.Model):
+class Course(BaseModel):
     class LanguageChoices(models.TextChoices):
         UZBEK = 'Uz'
         RUSSIAN = 'Ru'
@@ -29,9 +30,9 @@ class Course(models.Model):
     
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
-    is_saved = models.ManyToManyField(User)
-    is_purchased = models.ManyToManyField(User)
-    is_completed = models.ManyToManyField(User)
+    is_saved = models.ManyToManyField(User, related_name='saved_courses')
+    is_purchased = models.ManyToManyField(User, related_name='purchased_courses')
+    is_completed = models.ManyToManyField(User, related_name='completed_courses')
 
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
@@ -58,7 +59,7 @@ class Course(models.Model):
         return self.title
     
 
-class Module(models.Model):
+class Module(BaseModel):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     title = models.CharField(max_length=255)
@@ -74,11 +75,11 @@ class Module(models.Model):
         return self.title
     
 
-class Lesson(models.Model):
+class Lesson(BaseModel):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
 
-    is_watched = models.ManyToManyField(User)
-    bookmark = models.ManyToManyField(User)
+    is_watched = models.ManyToManyField(User, related_name='watched_lessons')
+    bookmark = models.ManyToManyField(User, related_name='last_watched_lessons')
 
     title = models.CharField(max_length=255)
 
@@ -98,7 +99,7 @@ class Lesson(models.Model):
         return self.title
     
 
-class Comment(models.Model):
+class Comment(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
