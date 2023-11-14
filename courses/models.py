@@ -14,9 +14,6 @@ class Category(BaseModel):
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
 
-    def __str__(self):
-        return self.title
-
 
 class Course(BaseModel):
     class LanguageChoices(models.TextChoices):
@@ -37,7 +34,7 @@ class Course(BaseModel):
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
 
-    preview = models.ImageField(upload_to='course-preview')
+    preview = models.ImageField(upload_to='course-previews/')
 
     is_free = models.BooleanField(default=False)
     has_discount = models.BooleanField(default=False)
@@ -51,13 +48,10 @@ class Course(BaseModel):
     average_rating = models.PositiveIntegerField(default=0)
     module_count = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        verbose_name = 'Course'
-        verbose_name_plural = 'Courses'
+    @property
+    def discount_percentage(self):
+        return (100 - ((self.discount_price / self.original_price) * 100))
 
-    def __str__(self):
-        return self.title
-    
 
 class Module(BaseModel):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -67,13 +61,6 @@ class Module(BaseModel):
     lesson_count = models.PositiveIntegerField(default=0)
     order = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        verbose_name = 'Module'
-        verbose_name_plural = 'Module'
-
-    def __str__(self):
-        return self.title
-    
 
 class Lesson(BaseModel):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
@@ -85,18 +72,11 @@ class Lesson(BaseModel):
 
     video_url = models.URLField()
     description = models.TextField()
-    preview = models.ImageField(upload_to='lesson-preview')
+    preview = models.ImageField(upload_to='lesson-previews/')
 
     is_accessable = models.BooleanField(default=False)
 
     order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        verbose_name = 'Lesson'
-        verbose_name_plural = 'Lessons'
-
-    def __str__(self):
-        return self.title
     
 
 class Comment(BaseModel):
@@ -105,10 +85,3 @@ class Comment(BaseModel):
 
     rating = models.PositiveIntegerField(default=0)
     content = models.TextField()
-
-    class Meta:
-        verbose_name = 'Comment'
-        verbose_name_plural = 'Comments'
-
-    def __str__(self):
-        return str(self.id)

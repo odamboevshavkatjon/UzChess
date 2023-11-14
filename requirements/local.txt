@@ -40,3 +40,4 @@ pytest-django==4.7.0  # https://github.com/pytest-dev/pytest-django
 
 
 Unidecode==1.3.7
+django-ckeditor==6.0.7
