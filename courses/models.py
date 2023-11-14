@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Avg
 from django.contrib.auth import get_user_model
+
 from helpers.models import BaseModel
 
 
@@ -13,6 +15,30 @@ class Category(BaseModel):
     class Meta:
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
+
+
+class CourseManager(models.Manager):
+    def get_average_ratings(self):
+        return self.aggregate(Avg('comment__rating'))
+
+    def get_filtered_courses(
+            self,
+            level=None,
+            category=None,
+            language=None,
+            rating=None,
+        ):
+        queryset = self.all()
+
+        if level is not None:
+            queryset = queryset.filter(Q(level__icontains=level))
+        if category is not None:
+            queryset = queryset.filter(Q(category__icontains=category))
+        if language is not None:
+            queryset = queryset.filter(Q(language__icontains=language))
+        if rating is not None:
+            queryset = queryset.filter(Q(rating__icontains=rating))
+        return queryset
 
 
 class Course(BaseModel):
@@ -47,6 +73,8 @@ class Course(BaseModel):
 
     average_rating = models.PositiveIntegerField(default=0)
     module_count = models.PositiveIntegerField(default=0)
+
+    objects = CourseManager()
 
     @property
     def discount_percentage(self):
